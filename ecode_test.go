@@ -12,7 +12,7 @@ var (
 	ParameterErr = New(1000400, "request param error", "request param error")
 )
 
-func TestEcode(t *testing.T) {
+func Test(t *testing.T) {
 	e := FromError(ParameterErr)
 	log.Println(e.Error())   // error: code = 1000400 reason =  message = equest param error metadata = map[] cause = <nil>
 	log.Println(e.Code())    // 1000400
@@ -20,7 +20,7 @@ func TestEcode(t *testing.T) {
 	log.Println("============================")
 }
 
-func TestEcodeWithReason(t *testing.T) {
+func TestWithReason(t *testing.T) {
 	Success = New(1, "SUCCESS", "success")
 
 	e2 := FromError(nil)
@@ -44,7 +44,7 @@ func TestWithMetadata(t *testing.T) {
 	log.Println("============================")
 }
 
-func TestEcodeWithCause(t *testing.T) {
+func TestWithCause(t *testing.T) {
 	mms := New(10086, "CMCC", "中国移动").WithCause(errors.New("我是原因"))
 	log.Println(mms.Error())   // error: code = 10086 reason = CMCC message = 中国移动 metadata = map[] cause = 我是原因
 	log.Println(mms.Code())    // 10086
