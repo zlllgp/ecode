@@ -1,0 +1,3 @@
+# ecode
+
+error code handle
