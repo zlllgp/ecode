@@ -1,6 +1,6 @@
-module github.com/go-pay/ecode
+module github.com/zlllgp/ecode
 
-go 1.21
+go 1.23.3
 
 require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240701130421-f6361c86f094
