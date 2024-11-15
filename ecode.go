@@ -16,17 +16,14 @@ type Error struct {
 }
 
 func (e *Error) Error() string {
-	return fmt.Sprintf("error: code = %d reason = %s message = %s metadata = %v cause = %v", e.Status.Code, e.Status.Reason, e.Status.Message, e.Metadata, e.cause)
+	return fmt.Sprintf("error: code = %d msg = %s metadata = %v cause = %v", e.Status.Code, e.Status.Msg, e.Metadata, e.cause)
 }
 
 // Code returns the code of the error.
 func (e *Error) Code() int { return int(e.Status.Code) }
 
-// Message returns the message of the error.
-func (e *Error) Message() string { return e.Status.Message }
-
-// Reason returns the reason of the error.
-func (e *Error) Reason() string { return e.Status.Reason }
+// Msg returns the msg of the error.
+func (e *Error) Msg() string { return e.Status.Msg }
 
 // Unwrap provides compatibility for Go 1.13 error chains.
 func (e *Error) Unwrap() error { return e.cause }
@@ -34,27 +31,23 @@ func (e *Error) Unwrap() error { return e.cause }
 // Is matches each error in the chain with the target value.
 func (e *Error) Is(err error) bool {
 	if se := new(Error); errors.As(err, &se) {
-		return se.Status.Code == e.Status.Code && se.Status.Reason == e.Status.Reason
+		return se.Status.Code == e.Status.Code
 	}
 	return false
 }
 
-// Equal matches error from code and reason.
-func (e *Error) Equal(code int, reason ...string) bool {
+// Equal matches error from code.
+func (e *Error) Equal(code int) bool {
 	se := &Error{Status: Status{
 		Code: int32(code),
 	}}
-	if len(reason) == 1 {
-		se.Status.Reason = reason[0]
-		return se.Status.Code == e.Status.Code && se.Status.Reason == e.Status.Reason
-	}
 	return se.Status.Code == e.Status.Code
 }
 
 // GRPCStatus returns the Status represented by error.
 func (e *Error) GRPCStatus() *status.Status {
-	gs, _ := status.New(DefaultConverter.ToGRPCCode(int(e.Status.Code)), e.Status.Message).
-		WithDetails(&errdetails.ErrorInfo{Reason: e.Status.Reason, Metadata: e.Metadata})
+	gs, _ := status.New(DefaultConverter.ToGRPCCode(int(e.Status.Code)), e.Status.Msg).
+		WithDetails(&errdetails.ErrorInfo{Metadata: e.Metadata})
 	return gs
 }
 
@@ -74,12 +67,11 @@ func (e *Error) WithMetadata(md map[string]string) *Error {
 
 // ============================================================================================================
 
-// New returns an error object for the code, message.
-func New(code int, reason string, message string) *Error {
+// New returns an error object for the code, msg.
+func New(code int, msg string) *Error {
 	return &Error{Status: Status{
-		Code:    int32(code),
-		Reason:  reason,
-		Message: message,
+		Code: int32(code),
+		Msg:  msg,
 	}}
 }
 
@@ -96,8 +88,7 @@ func DeepClone(err *Error) *Error {
 		cause: err.cause,
 		Status: Status{
 			Code:     err.Status.Code,
-			Reason:   err.Status.Reason,
-			Message:  err.Status.Message,
+			Msg:      err.Status.Msg,
 			Metadata: metadata,
 		},
 	}
@@ -114,13 +105,12 @@ func FromError(err error) *Error {
 	}
 	gs, ok := status.FromError(err)
 	if !ok {
-		return New(UnknownCode, UnknownReason, err.Error())
+		return New(UnknownCode, err.Error())
 	}
-	ret := New(DefaultConverter.FromGRPCCode(gs.Code()), UnknownReason, gs.Message())
+	ret := New(DefaultConverter.FromGRPCCode(gs.Code()), gs.Message())
 	for _, detail := range gs.Details() {
 		switch d := detail.(type) {
 		case *errdetails.ErrorInfo:
-			ret.Status.Reason = d.Reason
 			return ret.WithMetadata(d.Metadata)
 		}
 	}
@@ -144,7 +134,7 @@ func errStringToErrorV2(e string) *Error {
 	}
 	i, err := strconv.Atoi(e)
 	if err != nil {
-		return New(-1, UnknownReason, e)
+		return New(-1, e)
 	}
-	return New(i, UnknownReason, e)
+	return New(i, e)
 }

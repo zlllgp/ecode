@@ -8,49 +8,44 @@ import (
 )
 
 var (
-	// base error
-	ParameterErr = New(1000400, "request param error", "request param error")
+	ParameterErr = New(1000400, "request param error")
 )
 
 func Test(t *testing.T) {
 	e := FromError(ParameterErr)
-	log.Println(e.Error())   // error: code = 1000400 reason =  message = equest param error metadata = map[] cause = <nil>
-	log.Println(e.Code())    // 1000400
-	log.Println(e.Message()) // request param error
+	log.Println(e.Error()) // error: code = 1000400 msg = equest param error metadata = map[] cause = <nil>
+	log.Println(e.Code())  // 1000400
+	log.Println(e.Msg())   // request param error
 	log.Println("============================")
 }
 
-func TestWithReason(t *testing.T) {
-	Success = New(1, "SUCCESS", "success")
+func TestWithSuccess(t *testing.T) {
+	Success = New(1, "success")
 
 	e2 := FromError(nil)
-	log.Println(e2.Error())   // error: code = 1 reason = SUCCESS message = success metadata = map[] cause = <nil>
-	log.Println(e2.Code())    // 1
-	log.Println(e2.Reason())  // SUCCESS
-	log.Println(e2.Message()) // success
+	log.Println(e2.Error()) // error: code = 1 msg = success metadata = map[] cause = <nil>
+	log.Println(e2.Code())  // 1
+	log.Println(e2.Msg())   // success
 	log.Println("============================")
 }
 
 func TestWithMetadata(t *testing.T) {
-	sms := New(10000, "CTCC", "中国电信").WithMetadata(map[string]string{
-		"name":   "jerry",
-		"reason": "我是metadata",
+	sms := New(10000, "中国电信").WithMetadata(map[string]string{
+		"name": "jerry",
 	})
-	log.Println(sms.Error())   // error: code = 10000 reason = CTCC message = 中国电信 metadata = map[name:jerry reason:我是metadata] cause = <nil>
-	log.Println(sms.Code())    // 10000
-	log.Println(sms.Reason())  // CTCC
-	log.Println(sms.Message()) // 中国电信
-	log.Println(sms.Metadata)  // map[name:jerry reason:我是metadata]
+	log.Println(sms.Error())  // error: code = 10000 msg = 中国电信 metadata = map[name:jerry] cause = <nil>
+	log.Println(sms.Code())   // 10000
+	log.Println(sms.Msg())    // 中国电信
+	log.Println(sms.Metadata) // map[name:jerry]
 	log.Println("============================")
 }
 
 func TestWithCause(t *testing.T) {
-	mms := New(10086, "CMCC", "中国移动").WithCause(errors.New("我是原因"))
-	log.Println(mms.Error())   // error: code = 10086 reason = CMCC message = 中国移动 metadata = map[] cause = 我是原因
-	log.Println(mms.Code())    // 10086
-	log.Println(mms.Reason())  // CMCC
-	log.Println(mms.Message()) // 中国电信
-	log.Println(mms.Unwrap())  // 我是原因
+	mms := New(10086, "中国移动").WithCause(errors.New("我是原因"))
+	log.Println(mms.Error())  // error: code = 10086 msg = 中国移动 metadata = map[] cause = 我是原因
+	log.Println(mms.Code())   // 10086
+	log.Println(mms.Msg())    // 中国电信
+	log.Println(mms.Unwrap()) // 我是原因
 	log.Println("============================")
 }
 
@@ -63,13 +58,13 @@ func TestIs(t *testing.T) {
 	}{
 		{
 			name: "true",
-			e:    New(404, "test", ""),
-			err:  New(http.StatusNotFound, "test", ""),
+			e:    New(404, ""),
+			err:  New(http.StatusNotFound, ""),
 			want: true,
 		},
 		{
 			name: "false",
-			e:    New(0, "test", ""),
+			e:    New(0, ""),
 			err:  errors.New("test"),
 			want: false,
 		},
