@@ -20,7 +20,7 @@ func (e *Error) Error() string {
 }
 
 // Code returns the code of the error.
-func (e *Error) Code() int { return int(e.Status.Code) }
+func (e *Error) Code() int32 { return e.Status.Code }
 
 // Msg returns the msg of the error.
 func (e *Error) Msg() string { return e.Status.Msg }
@@ -68,9 +68,9 @@ func (e *Error) WithMetadata(md map[string]string) *Error {
 // ============================================================================================================
 
 // New returns an error object for the code, msg.
-func New(code int, msg string) *Error {
+func New(code int32, msg string) *Error {
 	return &Error{Status: Status{
-		Code: int32(code),
+		Code: code,
 		Msg:  msg,
 	}}
 }
@@ -136,5 +136,5 @@ func errStringToErrorV2(e string) *Error {
 	if err != nil {
 		return New(-1, e)
 	}
-	return New(i, e)
+	return New(int32(i), e)
 }
