@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	ParameterErr = New(1000400, "request param error")
+	ParameterErr = NewErrNo(1000400, "request param error")
 )
 
 func Test(t *testing.T) {
@@ -20,7 +20,7 @@ func Test(t *testing.T) {
 }
 
 func TestWithSuccess(t *testing.T) {
-	Success = New(1, "success")
+	Success = NewErrNo(1, "success")
 
 	e2 := FromError(nil)
 	log.Println(e2.Error()) // error: code = 1 msg = success metadata = map[] cause = <nil>
@@ -30,7 +30,7 @@ func TestWithSuccess(t *testing.T) {
 }
 
 func TestWithMetadata(t *testing.T) {
-	sms := New(10000, "中国电信").WithMetadata(map[string]string{
+	sms := NewErrNo(10000, "中国电信").WithMetadata(map[string]string{
 		"name": "jerry",
 	})
 	log.Println(sms.Error())  // error: code = 10000 msg = 中国电信 metadata = map[name:jerry] cause = <nil>
@@ -41,7 +41,7 @@ func TestWithMetadata(t *testing.T) {
 }
 
 func TestWithCause(t *testing.T) {
-	mms := New(10086, "中国移动").WithCause(errors.New("我是原因"))
+	mms := NewErrNo(10086, "中国移动").WithCause(errors.New("我是原因"))
 	log.Println(mms.Error())  // error: code = 10086 msg = 中国移动 metadata = map[] cause = 我是原因
 	log.Println(mms.Code())   // 10086
 	log.Println(mms.Msg())    // 中国电信
@@ -52,19 +52,19 @@ func TestWithCause(t *testing.T) {
 func TestIs(t *testing.T) {
 	tests := []struct {
 		name string
-		e    *Error
+		e    *ErrorNo
 		err  error
 		want bool
 	}{
 		{
 			name: "true",
-			e:    New(404, ""),
-			err:  New(http.StatusNotFound, ""),
+			e:    NewErrNo(404, ""),
+			err:  NewErrNo(http.StatusNotFound, ""),
 			want: true,
 		},
 		{
 			name: "false",
-			e:    New(0, ""),
+			e:    NewErrNo(0, ""),
 			err:  errors.New("test"),
 			want: false,
 		},
@@ -73,7 +73,7 @@ func TestIs(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if ok := tt.e.Is(tt.err); ok != tt.want {
-				t.Errorf("Error.Error() = %v, want %v", ok, tt.want)
+				t.Errorf("ErrorNo.ErrorNo() = %v, want %v", ok, tt.want)
 			}
 		})
 	}
