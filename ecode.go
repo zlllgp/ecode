@@ -20,7 +20,7 @@ func (e *Error) Error() string {
 }
 
 // Code returns the code of the error.
-func (e *Error) Code() int32 { return e.Status.Code }
+func (e *Error) Code() int64 { return e.Status.Code }
 
 // Msg returns the msg of the error.
 func (e *Error) Msg() string { return e.Status.Msg }
@@ -39,7 +39,7 @@ func (e *Error) Is(err error) bool {
 // Equal matches error from code.
 func (e *Error) Equal(code int) bool {
 	se := &Error{Status: Status{
-		Code: int32(code),
+		Code: int64(code),
 	}}
 	return se.Status.Code == e.Status.Code
 }
@@ -68,7 +68,7 @@ func (e *Error) WithMetadata(md map[string]string) *Error {
 // ============================================================================================================
 
 // New returns an error object for the code, msg.
-func New(code int32, msg string) *Error {
+func New(code int64, msg string) *Error {
 	return &Error{Status: Status{
 		Code: code,
 		Msg:  msg,
@@ -136,5 +136,5 @@ func errStringToErrorV2(e string) *Error {
 	if err != nil {
 		return New(-1, e)
 	}
-	return New(int32(i), e)
+	return New(int64(i), e)
 }

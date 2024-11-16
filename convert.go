@@ -50,7 +50,7 @@ func (statusConverter) ToGRPCCode(code int) codes.Code {
 
 // FromGRPCCode converts a gRPC error code into the corresponding HTTP response status.
 // See: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-func (statusConverter) FromGRPCCode(code codes.Code) int32 {
+func (statusConverter) FromGRPCCode(code codes.Code) int64 {
 	switch code {
 	case codes.OK:
 		return http.StatusOK
@@ -89,7 +89,7 @@ func (statusConverter) FromGRPCCode(code codes.Code) int32 {
 	default:
 		if (code > 0 && code <= 99) || code >= 599 {
 			// code not http status code
-			return int32(code)
+			return int64(code)
 		}
 		return http.StatusInternalServerError
 	}
